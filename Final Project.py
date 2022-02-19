@@ -1,0 +1,217 @@
+# Final Project
+# Advanced Python for Data Analysis
+# Jake Agate
+
+import pandas as pd
+import matplotlib as plt
+import matplotlib.pyplot as graph
+import numpy as np
+
+pd.set_option('display.max_rows', 100)
+pd.set_option('display.max_columns', 100)
+pd.set_option('display.width', 1000)
+
+
+#################### Creating Merged James Bond Data Frame ####################
+
+
+
+# Read in the three datafiles and give column names:
+u_col = ['UID','gender','age','job','zip']
+users = pd.read_table('users.dat',sep='::',header = None, names = u_col,engine='python')
+
+r_col = ['UID','MID','rating','TSDate']
+ratings = pd.read_table('ratings.dat',sep='::',header = None, names = r_col,engine='python')
+
+m_col = ['MID','Title','Year','Actor','Director','A_Gross','Adj_gross','A_Budget','Adj_Budget','return']
+movies = pd.read_table('bond_film_4.csv',sep=',',header = None, names = m_col,engine='python')
+
+# Merge two dataframes on UID
+movie_temp = pd.merge(ratings,users)
+
+# Merge two dataframes on MID
+movie_data = pd.merge(movie_temp,movies)
+
+
+
+#################### Menu Selection Calculations and Plots ####################
+
+
+
+# Average rating based on gender calculation:
+gender_ratings = movie_data.pivot_table('rating',index = 'Title',columns ='gender', aggfunc='mean')
+gender_ratings.F.mean()
+gender_ratings.M.mean()
+
+
+
+# Average rating based on occupation calculation:
+occupation_ratings = movie_data.pivot_table('rating', columns = 'job', aggfunc = 'mean')
+occupation_ratings.head()
+
+# Average rating based on occupation plot:
+job_grouped_means = movie_data.groupby('job')['rating'].mean()
+job_grouped_means.plot(kind = 'bar')
+graph.xticks(rotation = 360)
+graph.xlabel('Occupation')
+graph.ylabel("Rating")
+graph.title("Mean Rating of James Bond Movies by Occupation")
+job_labels = ("Other", "Academic", "Artist", "Clerical", "College Student", "Customer Service", 
+              "Health Care", "Executive", "Farmer", "Homemaker", "K-12 Student", "Lawyer", "Programmer", 
+              "Retired", "Sales", "Scientist", "Self-Employed", "Engineer", "Tradesman", "Unemployed", "Writer")
+graph.xticks(ticks = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20], labels = job_labels, rotation = 90)
+
+
+
+# Average rating based on age range:
+age_ratings = movie_data.pivot_table('rating', columns = 'age', aggfunc = 'mean')
+age_ratings
+
+# Average rating based on age range plot:
+age_grouped_means = movie_data.groupby('age')['rating'].mean()
+age_grouped_means.plot(kind = 'bar')
+graph.xticks(rotation = 360)
+graph.xlabel('Age')
+graph.ylabel("Rating")
+graph.title("Mean Rating of James Bond Movies by Age")
+age_labels = ("Under 18", "18 - 24", "25 - 34", "35 - 44", "45 - 49", "50 - 55", "Over 56")
+graph.xticks(ticks = [0,1,2,3,4,5,6], labels = age_labels, rotation = 30)
+
+
+
+# Average rating for chosen movie:
+bond_selection = str(input("Enter a James Bond Movie: "))
+
+title_ratings = movie_data.groupby('Title')['rating'].mean()
+title_ratings[bond_selection]
+
+
+# Average rating for chosen movie based off occupation:
+job_mean = movie_data.pivot_table('rating', index = 'job', columns = 'Title', aggfunc = 'mean')
+job_mean.head()
+
+
+# Average rating for chosen movie based off occupation plot:
+job_mean[bond_selection].plot(kind = 'bar')
+graph.xticks(rotation = 360)
+graph.xlabel("Occupation")
+graph.ylabel("Rating")
+graph.title("Average Rating For " + bond_selection + " Based on Occupation") 
+job_labels = ("Other", "Academic", "Artist", "Clerical", "College Student", "Customer Service", "Health Care", "Executive", "Farmer", "Homemaker", "K-12 Student", "Lawyer", "Programmer", "Retired", "Sales", "Scientist", "Self-Employed", "Engineer", "Tradesman", "Unemployed", "Writer")
+graph.xticks(ticks = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20], labels = job_labels, rotation = 90)
+
+
+# Average rating for chosen movie based off age range:
+age_mean = movie_data.pivot_table('rating', index = 'age', columns = 'Title', aggfunc = 'mean')
+age_mean.head()
+
+age_mean[bond_selection]
+
+
+# Average rating for chosen movie based off age range plot:
+age_mean[bond_selection].plot(kind = 'bar')
+graph.xticks(rotation = 360)
+graph.xlabel("Age Ranges")
+graph.ylabel("Rating")
+graph.title("Average Rating For " + bond_selection + " Based on Age")   
+age_labels = ("Under 18", "18 - 24", "25 - 34", "35 - 44", "45 - 49", "50 - 55", "Over 56")
+graph.xticks(ticks = [0,1,2,3,4,5,6], labels = age_labels, rotation = 30) 
+
+
+#################################### Menu #####################################
+
+mean_rating_gender = 1
+mean_rating_occupation = 2
+mean_rating_age = 3
+mean_rating_single_movie = 4
+mean_rating_single_occupation = 5
+mean_rating_single_age = 6
+leave = 7
+
+
+def get_menu_choices():
+    print()
+    print('Mean Statistics for James Bond Movies')
+    print("Choose Option Below:")
+    print('-----------------------------------------------------------')
+    print('1. Average rating based on gender')
+    print('2. Average rating based on occupation')
+    print('3. Average rating based on age')
+    print('4. Average rating of movie of your choice')
+    print('5. Average rating of movie of your choice based on occupation')
+    print('6. Average rating of movie of your choice based on age')
+    print('7. Exit')
+    print()
+
+    choice = int(input('Enter you choice: '))
+    while choice < mean_rating_gender or choice > leave:
+        choice = int(input('Enter a valid choice: '))
+    
+    return choice
+
+
+def main():
+    choice = 0
+    while choice != leave:
+        choice = get_menu_choices()
+        if choice == 1:
+            print()
+            print("Average rating of James Bond movies by males: ", gender_ratings.F.mean())
+            print("Average rating of James Bond movies by females: ", gender_ratings.M.mean())
+        elif choice == 2:
+            print()
+            print("Mean rating based on occupation:")
+            print(occupation_ratings)
+            job_grouped_means = movie_data.groupby('job')['rating'].mean()
+            job_grouped_means.plot(kind = 'bar')
+            graph.xticks(rotation = 360)
+            graph.xlabel('Occupation')
+            graph.ylabel("Rating")
+            graph.title("Mean Rating of James Bond Movies by Occupation")
+        elif choice == 3:
+            print()
+            print("Mean rating based on age:")
+            print(age_ratings)
+            age_grouped_means = movie_data.groupby('age')['rating'].mean()
+            age_grouped_means.plot(kind = 'bar')
+            graph.xticks(rotation = 360)
+            graph.xlabel('Age')
+            graph.ylabel("Rating")
+            graph.title("Mean Rating of James Bond Movies by Age")
+        elif choice == 4:
+            print()
+            bond_selection = str(input("Enter a James Bond Movie: "))
+            print('\n')
+            print("Mean rating of",bond_selection,": ", title_ratings[bond_selection])
+        elif choice == 5:
+            print()
+            bond_selection = str(input("Enter a James Bond Movie: "))
+            print('\n')
+            print("Mean rating of",bond_selection,"based on occupation: ")
+            print(job_mean[bond_selection])
+            job_mean[bond_selection].plot(kind = 'bar')
+            graph.xticks(rotation = 360)
+            graph.xlabel("Occupation")
+            graph.ylabel("Rating")
+            graph.title("Average Rating For " + bond_selection + " Based on Occupation")   
+        elif choice == 6:
+            print()
+            bond_selection = str(input("Enter a James Bond Movie: "))
+            print('\n')
+            print("Mean rating of",bond_selection,"based on age:")
+            print(age_mean[bond_selection])
+            age_mean[bond_selection].plot(kind = 'bar')
+            graph.xticks(rotation = 360)
+            graph.xlabel("Age Ranges")
+            graph.ylabel("Rating")
+            graph.title("Average Rating For " + bond_selection + " Based on Age")    
+        else:
+            print()
+            print("Sucessfully Quit Program")
+
+main()
+
+
+
+
+
