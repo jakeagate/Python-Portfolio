@@ -1,6 +1,4 @@
-# Final Project
-# Advanced Python for Data Analysis
-# Jake Agate
+# Menu-Oriented Program
 
 import pandas as pd
 import matplotlib as plt
